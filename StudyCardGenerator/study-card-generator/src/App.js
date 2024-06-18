@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import FlashcardList from './FlashcardList';
 import './app.css'
-import axios from 'axios';
 
 // For future self, incase forget: es7 react/redux --> auto boiler plate
 function App() {
@@ -9,36 +8,42 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res = await axios
-          .get("https://opentdb.com/api.php?amount=10")
-          .then(res => {
-            setFlashcards(
-              res.data.results.map((questionItem, index) => {
-                const answer = questionItem.correct_answer
-                const options = [...questionItem.incorrect_answers, answer]
-                return {
-                  id: `${index}-${Date.now()}`,
-                  question: questionItem.question,
-                  answer: answer,
-                  options: options.sort(() => Math.random() - .5)
-                }
-              }) 
-            )
-          }
-          )
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+      try{
+        const res = await fetch('https://opentdb.com/api.php?amount=10');
+        const data = await res.json()
+
+        setFlashcards(
+          data.results.map((questionItem, index) => {
+            const answer = decodeString(questionItem.correct_answer)
+            const options = [
+              ...questionItem.incorrect_answers.map(o => decodeString(o)),
+              answer
+            ]
+            return {
+              id: `${index}-${Date.now()}`,
+              question: decodeString(questionItem.question),
+              answer: answer,
+              options: options.sort(() => Math.random() - .5)
+            }
+          })
+        )
+      }catch(error){}
+    }
+    
+    fetchData();
   
-    fetchData(); // Call the async function defined above
-  
-    // Note: No dependencies in the dependency array [], meaning this effect runs once after the initial render
-  }, []);
+  }, [])
+
+  function decodeString(str){
+    const textArea = document.createElement('textarea')
+    textArea.innerHTML = str
+    return textArea.value
+  }
 
   return (
-    <FlashcardList flashcards = {flashcards}/>
+    <div className='container'>
+      <FlashcardList flashcards = {flashcards}/>
+    </div>
   );
 }
 
