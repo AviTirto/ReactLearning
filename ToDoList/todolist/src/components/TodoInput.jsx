@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-export default function TodoInput({ handleTodos }) {
-    const [todoValue, setTodoValue] = useState('')
+export default function TodoInput({ handleTodos, todoValue, setTodoValue }) {
 
     return (
         <header>
@@ -10,6 +9,7 @@ export default function TodoInput({ handleTodos }) {
             }} placeholder="Enter todo..."/> 
             <button onClick={() => {
                 handleTodos(todoValue)
+                setTodoValue('')
             }}>Add</button>
         </header>
     )
